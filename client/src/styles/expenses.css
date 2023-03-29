@@ -1,0 +1,69 @@
+.container {
+  margin: auto;
+  max-width: 800px;
+  padding: 16px;
+}
+
+.paper {
+  padding: 16px;
+  text-align: center;
+}
+
+.expense-log {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.legend {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  font-weight: bold;
+  padding: 8px;
+}
+
+.legend > div {
+  flex-basis: 33.3%;
+  padding: 8px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.name {
+  text-align: left;
+  border-right: 1px solid #ccc;
+}
+
+.amount {
+  text-align: left;
+  border-right: 1px solid #ccc;
+}
+
+.date-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.date {
+  text-align: left;
+  flex-grow: 1;
+}
+
+.actions {
+  text-align: right;
+}
+
+.expense-item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #ccc;
+  padding: 8px;
+}
+
+.expense-item > div {
+  flex-basis: 33.3%;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
