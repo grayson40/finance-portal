@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  client:
+    build: ./client
+    image: finance-client
+    container_name: portal-client
+    ports:
+      - "8080:80"
+
+  server:
+    build: ./server
+    image: finance-server
+    container_name: portal-server
+    ports:
+      - "5000:5000"
