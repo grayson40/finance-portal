@@ -1,49 +1,43 @@
-# Finance Portal
+# Finance Portal Client with Docker
 
-A portal to view and manage your personal finances.
+This repository contains a React app built with Vite, which can be built and run using Docker. Follow the steps below to build and run the client-side app.
 
-## Getting Started
+## Prerequisites
 
-Follow these instructions to get started!
+- Install [Docker](https://www.docker.com/products/docker-desktop) on your machine.
 
-## Pre-requisites
+## Building the Docker Image
 
-<details>
-	<summary>Node.js</summary>
+1. Open a terminal or command prompt, and navigate to the root directory of this project (the directory containing the `Dockerfile` and `package.json`).
 
-Node.js is used to manage project dependencies. Download the latest version of Node.js [here.](https://nodejs.org/en/download/)
-</details>
+2. Build the Docker image by running the following command:
 
-<details>
-	<summary>Git</summary>
+    `docker build -t image_name .`
 
-Git is used to manage the repository. Download the latest version of Git [here.](https://gitforwindows.org/)
-</details>
+Replace `image_name` with your desired image name. This command will build a Docker image using the instructions in the `Dockerfile`.
 
-<details>
-	<summary>VS Code</summary>
+## Running the React App in a Docker Container
 
-VS Code is used to build and test the app. Debugging and version control is very easy through this editor. Download the latest version of VS Code [here](https://code.visualstudio.com/download).
-</details>
+1. After building the Docker image, you can run a container using the following command:
 
-## Installation & Running
+    `docker run --name container_name -p 8080:80 image_name`
 
-**Getting started with the Finance Portal...**
+Replace `container_name` with your desired container name and `image_name` with the image name you used in the previous step. This command maps port 8080 on your machine to port 80 in the container.
 
-1. To Start, clone this repository from GitHub, change into the cloned directory, and checkout the master branch.
-    ```
-    git clone https://github.com/grayson40/finance-portal.git
-    cd finance-portal
-    git checkout master
-    ```
-    Working off the master branch will ensure that you're using the latest released version of Daw.
+2. Your React app should now be running inside a Docker container and accessible at `http://localhost:8080`. Open a browser and navigate to `http://localhost:8080` to see your app.
 
-2. Install project dependencies.
-    ```
-    npm install
-    ```
+## Stopping the React App
 
-3. Run the app.
-    ```
-    npm run dev
-    ```
+1. To stop the running React app container, run the following command:
+
+    `docker stop container_name`
+
+Replace `container_name` with the actual container name you used earlier.
+
+2. (Optional) If you want to remove the stopped container, you can run:
+
+    `docker rm container_name`
+
+Replace `container_name` with the actual container name.
+
+Now you have successfully built, run, and stopped a React app using Docker.
