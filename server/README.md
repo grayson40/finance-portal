@@ -12,7 +12,9 @@ This repository contains a Flask server application that can be built and run us
 
 2. Build the Docker image by running the following command:
 
-    `docker build -t finance-server .`
+    ```
+    docker build -t finance-server .
+    ```
 
 This command will build a Docker image using the instructions in the `Dockerfile`.
 
@@ -20,7 +22,9 @@ This command will build a Docker image using the instructions in the `Dockerfile
 
 1. After building the Docker image, you can run a container using the following command:
 
-    `docker run --name portal-server -p 5000:5000 finance-server`
+    ```
+    docker run --name portal-server -p 5000:5000 finance-server
+    ```
 
 This command maps port 5000 on your machine to port 5000 in the container.
 
@@ -30,10 +34,12 @@ This command maps port 5000 on your machine to port 5000 in the container.
 
 1. To stop the running Flask server container, run the following command:
 
-    `docker stop portal-server`
-
+    ```
+    docker stop portal-server
+    ```
 2. (Optional) If you want to remove the stopped container, you can run:
 
-    `docker rm portal-server`
-
+    ```
+    docker rm portal-server
+    ```
 Now you have successfully built, run, and stopped a Flask server using Docker.

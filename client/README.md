@@ -12,7 +12,9 @@ This repository contains a React app built with Vite, which can be built and run
 
 2. Build the Docker image by running the following command:
 
-    `docker build -t finance-client .`
+    ```
+    docker build -t finance-client .
+    ```
 
 This command will build a Docker image using the instructions in the `Dockerfile`.
 
@@ -20,7 +22,9 @@ This command will build a Docker image using the instructions in the `Dockerfile
 
 1. After building the Docker image, you can run a container using the following command:
 
-    `docker run --name portal-client -p 8080:80 finance-client`
+    ```
+    docker run --name portal-client -p 8080:80 finance-client
+    ```
 
 This command maps port 8080 on your machine to port 80 in the container.
 
@@ -30,10 +34,14 @@ This command maps port 8080 on your machine to port 80 in the container.
 
 1. To stop the running React app container, run the following command:
 
-    `docker stop portal-client`
+    ```
+    docker stop portal-client
+    ```
 
 2. (Optional) If you want to remove the stopped container, you can run:
 
-    `docker rm portal-client`
+    ```
+    docker rm portal-client
+    ```
 
 Now you have successfully built, run, and stopped a React app using Docker.
