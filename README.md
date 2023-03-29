@@ -50,4 +50,11 @@ VS Code is used to build and test the app. Debugging and version control is very
     ```
     Working off the master branch will ensure that you're using the latest released version of Daw.
 
-2. Navigate to the respective [client](https://github.com/grayson40/financial-portal/blob/master/client/README.md) and [server](https://github.com/grayson40/financial-portal/blob/master/server/README.md) repositories for Docker instructions.
+2. Build and run the project.
+
+    `docker-compose up --build`
+
+    - The `docker-compose.yml` file defines two services: client and server. The client service builds and runs the React app, while the server service builds and runs the Flask server.
+    - Both services are configured to expose their respective ports to the host machine (8080 for the client and 5000 for the server).
+## Notes
+Navigate to the respective [client](https://github.com/grayson40/financial-portal/blob/master/client/README.md) and [server](https://github.com/grayson40/financial-portal/blob/master/server/README.md) repositories for **individual** Docker instructions.
