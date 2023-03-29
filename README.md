@@ -50,4 +50,4 @@ VS Code is used to build and test the app. Debugging and version control is very
     ```
     Working off the master branch will ensure that you're using the latest released version of Daw.
 
-2. Navigate to the respective [client](client\README.md) and [server](server\README.md) repositories for Docker instructions.
+2. Navigate to the respective [client](https://github.com/grayson40/financial-portal/blob/master/client/README.md) and [server](https://github.com/grayson40/financial-portal/blob/master/server/README.md) repositories for Docker instructions.
