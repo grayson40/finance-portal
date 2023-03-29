@@ -1,5 +1,5 @@
 import React from 'react'
-import ButtonAppBar from './AppBar'
+import ButtonAppBar from './Appbar'
 import Sidenav from './Sidenav'
 import styles from '../styles/layout.module.css'
 
