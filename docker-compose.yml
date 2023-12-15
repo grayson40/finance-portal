@@ -1,5 +1,4 @@
 version: "3.8"
-
 services:
   client:
     build: ./client
@@ -7,6 +6,8 @@ services:
     container_name: portal-client
     ports:
       - "8080:80"
+    volumes:
+      - ./client:/app
 
   server:
     build: ./server
@@ -14,3 +15,5 @@ services:
     container_name: portal-server
     ports:
       - "5000:5000"
+    volumes:
+      - ./server:/app

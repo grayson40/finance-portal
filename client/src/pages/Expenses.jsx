@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { Grid, Paper, TextField, Button, Typography } from '@mui/material'
 import '../styles/expenses.css'
 import { IconButton } from '@mui/material'
@@ -29,13 +29,37 @@ export default function Expenses() {
     date: new Date(),
   })
 
-  const handleAddExpense = () => {
+  useEffect(() => {
+    console.log(state)
+  },[state])
+
+  const handleAddExpense = async () => {
     if (newExpense.amount === '' || newExpense.name === '') {
-      return
+      return;
     }
-    dispatch({ type: 'ADD_EXPENSE', payload: newExpense })
-    setNewExpense({ name: '', amount: '', date: new Date() })
-  }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/users/${userId}/expenses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newExpense),
+      });
+
+      if (!response.ok) {
+        throw new Error('HTTP error ' + response.status);
+      }
+
+      const expense = await response.json();
+
+      dispatch({ type: 'ADD_EXPENSE', payload: expense });
+    } catch (error) {
+      console.error('Failed to add expense:', error);
+    }
+
+    setNewExpense({ name: '', amount: '', date: new Date() });
+  };
 
   const handleEditExpense = (index) => {
     // Dispatch an action to edit the expense with the given index
