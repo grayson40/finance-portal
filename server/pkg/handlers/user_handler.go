@@ -1,226 +1,155 @@
 package handlers
 
 import (
-	"encoding/json"
+	"backend/pkg/models"
+	"backend/pkg/utils"
 	"errors"
 	"net/http"
 	"strconv"
-	"strings"
 
-	"backend/pkg/models"
-	"backend/pkg/utils"
-
+	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-type LoginResponse struct {
-    Token string        `json:"token"`
-    User  models.User   `json:"user"`
-}
-
 type UserHandler struct {
-    DB *gorm.DB
+    DB        *gorm.DB
     JWTSecret string
 }
 
-func NewUserHandler(db *gorm.DB, JWTSecret string) *UserHandler{
+func NewUserHandler(db *gorm.DB, JWTSecret string) *UserHandler {
     return &UserHandler{DB: db, JWTSecret: JWTSecret}
 }
 
-func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
-    var user models.User
+func (h *UserHandler) SetupUserRoutes(router *gin.Engine) {
+    router.POST("/api/register", h.RegisterUser)
+    router.POST("/api/login", h.LoginUser)
+    router.GET("/api/users/:id", h.GetUser)
+    router.PUT("/api/users/:id", h.UpdateUser)
+    router.DELETE("/api/users/:id", h.DeleteUser)
+}
 
-    // Decode the JSON request body into the user struct
-    err := json.NewDecoder(r.Body).Decode(&user)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+func (h *UserHandler) RegisterUser(c *gin.Context) {
+    var user models.User
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    // Hash the password
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
     if err != nil {
-        http.Error(w, "Failed to create user", http.StatusInternalServerError)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
         return
     }
     user.Password = string(hashedPassword)
 
-    // Create the user in the database
-    result := h.DB.Create(&user)
-    if result.Error != nil {
-        http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+    if result := h.DB.Create(&user); result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
         return
     }
 
-    // Generate JWT token (this function is not shown, you'll need to implement it)
     token, err := utils.GenerateJWT(user, h.JWTSecret)
     if err != nil {
-        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
         return
     }
 
-    // Send the token and user as JSON response
     user.Password = ""
-    response := LoginResponse{
-        Token: token,
-        User:  user,
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(response)
+    c.JSON(http.StatusCreated, gin.H{"token": token, "user": user})
 }
 
-func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) LoginUser(c *gin.Context) {
     var loginDetails struct {
         Email    string
         Password string
     }
-
-    // Decode the JSON request body into the loginDetails struct
-    err := json.NewDecoder(r.Body).Decode(&loginDetails)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    if err := c.ShouldBindJSON(&loginDetails); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    // Retrieve the user from the database
     var user models.User
-    result := h.DB.Where("email = ?", loginDetails.Email).First(&user)
-    if result.Error != nil {
-        http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+    if result := h.DB.Where("email = ?", loginDetails.Email).First(&user); result.Error != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid login credentials"})
         return
     }
 
-    // Compare the hashed password with the password from the request
-    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDetails.Password))
-    if err != nil {
-        http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+    if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDetails.Password)); err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid login credentials"})
         return
     }
 
-    // Generate JWT token (this function is not shown, you'll need to implement it)
     token, err := utils.GenerateJWT(user, h.JWTSecret)
     if err != nil {
-        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
         return
     }
 
-    // Send the token and user as JSON response
-    response := LoginResponse{
-        Token: token,
-        User:  user,
-    }
-
-    w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(response)
+    c.JSON(http.StatusOK, gin.H{"token": token, "user": user})
 }
 
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request, id string) {
-    // Convert the id to uint
-    userID, err := strconv.Atoi(id)
+func (h *UserHandler) GetUser(c *gin.Context) {
+    userID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
-        http.Error(w, "Invalid user ID", http.StatusBadRequest)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
         return
     }
 
-    // Get the user from the database
     var user models.User
-    result := h.DB.First(&user, userID)
-    if result.Error != nil {
+    if result := h.DB.First(&user, userID); result.Error != nil {
         if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            http.Error(w, "User not found", http.StatusNotFound)
+            c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
         } else {
-            http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+            c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
         }
         return
     }
 
-    // Send the user as JSON response
-    json.NewEncoder(w).Encode(user)
+    c.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request, id string) {
-    // Convert the id to uint
-    userID, err := strconv.Atoi(id)
+func (h *UserHandler) UpdateUser(c *gin.Context) {
+    userID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
-        http.Error(w, "Invalid user ID", http.StatusBadRequest)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
         return
     }
 
-    // Get the user from the database
     var user models.User
-    result := h.DB.First(&user, userID)
-    if result.Error != nil {
-        if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-            http.Error(w, "User not found", http.StatusNotFound)
-        } else {
-            http.Error(w, result.Error.Error(), http.StatusInternalServerError)
-        }
+    if result := h.DB.First(&user, userID); result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
         return
     }
 
-    // Decode the JSON request body into the user struct
-    err = json.NewDecoder(r.Body).Decode(&user)
-    if err != nil {
-        http.Error(w, err.Error(), http.StatusBadRequest)
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    // Update the user in the database
-    result = h.DB.Save(&user)
-    if result.Error != nil {
-        http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+    if result := h.DB.Save(&user); result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
         return
     }
 
-    // Send a success response
-    json.NewEncoder(w).Encode(user)
+    c.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request, id string) {
-    // Convert the id to uint
-    userID, err := strconv.Atoi(id)
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+    userID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
-        http.Error(w, "Invalid user ID", http.StatusBadRequest)
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
         return
     }
 
-    // Delete the user from the database
-    var user models.User
-    result := h.DB.Delete(&user, userID)
-    if result.Error != nil {
-        http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+    if result := h.DB.Delete(&models.User{}, userID); result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
         return
     }
 
-    // Check if any user was deleted
-    if result.RowsAffected == 0 {
-        http.Error(w, "No user found with given ID", http.StatusNotFound)
-        return
-    }
+    // if result.RowsAffected == 0 {
+    //     c.JSON(http.StatusNotFound, gin.H{"error": "No user found with given ID"})
+    //     return
+    // }
 
-    // Send a success response
-    w.WriteHeader(http.StatusNoContent)
-}
-
-func (h *UserHandler) HandleUserOperations(w http.ResponseWriter, r *http.Request) {
-    // Extracting the ID from the URL
-    id := strings.TrimPrefix(r.URL.Path, "/api/users/")
-    if id == "" {
-        http.Error(w, "User ID is required", http.StatusBadRequest)
-        return
-    }
-
-    // Determine the HTTP method and call the appropriate handler
-    switch r.Method {
-    case "GET":
-        h.GetUser(w, r, id)
-    case "PUT":
-        h.UpdateUser(w, r, id)
-    case "DELETE":
-        h.DeleteUser(w, r, id)
-    default:
-        http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-    }
+    c.Status(http.StatusNoContent)
 }
