@@ -2,18 +2,18 @@ import '../styles/profile.css'
 import { useAuthValue } from '../context/AuthContext'
 
 export default function Profile () {
-  const { currentUser } = useAuthValue()
+  const { user } = useAuthValue()
 
   return (
     <>
       <h1>Profile</h1>
       <p>
-        <strong>Email: </strong>
-        {currentUser?.email}
+        <strong>Name: </strong>
+        {`${user?.Name}`}
       </p>
       <p>
-        <strong>Email verified: </strong>
-        {`${currentUser?.emailVerified}`}
+        <strong>Email: </strong>
+        {user?.Email}
       </p>
     </>
   )

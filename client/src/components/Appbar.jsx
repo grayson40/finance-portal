@@ -9,8 +9,6 @@ import IconButton from '@mui/material/IconButton'
 import MenuItem from '@mui/material/MenuItem'
 import Menu from '@mui/material/Menu'
 import { Link } from 'react-router-dom'
-import { signOut } from 'firebase/auth'
-import { auth } from '../firebase'
 
 export default function ButtonAppBar () {
   const [anchor, setAnchor] = useState(null)
@@ -24,8 +22,8 @@ export default function ButtonAppBar () {
   }
 
   const handleSignOut = () => {
+    localStorage.removeItem('token')
     handleClose()
-    signOut(auth)
   }
 
   return (

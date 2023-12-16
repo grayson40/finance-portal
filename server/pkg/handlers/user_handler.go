@@ -14,6 +14,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type LoginResponse struct {
+    Token string        `json:"token"`
+    User  models.User   `json:"user"`
+}
+
 type UserHandler struct {
     DB *gorm.DB
     JWTSecret string
@@ -48,10 +53,22 @@ func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Respond with success (don't send password back)
+    // Generate JWT token (this function is not shown, you'll need to implement it)
+    token, err := utils.GenerateJWT(user, h.JWTSecret)
+    if err != nil {
+        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        return
+    }
+
+    // Send the token and user as JSON response
     user.Password = ""
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(user)
+    response := LoginResponse{
+        Token: token,
+        User:  user,
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(response)
 }
 
 func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
@@ -89,9 +106,14 @@ func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Respond with the JWT token
+    // Send the token and user as JSON response
+    response := LoginResponse{
+        Token: token,
+        User:  user,
+    }
+
     w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]string{"token": token})
+    json.NewEncoder(w).Encode(response)
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request, id string) {
