@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func SetupDatabase() *gorm.DB {
-    db, err := gorm.Open(sqlite.Open("finance-portal.db"), &gorm.Config{})
+func SetupDatabase(DBConnectionString string) *gorm.DB {
+    db, err := gorm.Open(sqlite.Open(DBConnectionString), &gorm.Config{})
     if err != nil {
         panic("failed to connect database")
     }

@@ -8,19 +8,22 @@ import (
 	"strings"
 
 	"backend/pkg/models"
+	"backend/pkg/utils"
 
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type UserHandler struct {
     DB *gorm.DB
+    JWTSecret string
 }
 
-func NewUserHandler(db *gorm.DB) *UserHandler{
-    return &UserHandler{DB: db}
+func NewUserHandler(db *gorm.DB, JWTSecret string) *UserHandler{
+    return &UserHandler{DB: db, JWTSecret: JWTSecret}
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) RegisterUser(w http.ResponseWriter, r *http.Request) {
     var user models.User
 
     // Decode the JSON request body into the user struct
@@ -30,6 +33,14 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    // Hash the password
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+    if err != nil {
+        http.Error(w, "Failed to create user", http.StatusInternalServerError)
+        return
+    }
+    user.Password = string(hashedPassword)
+
     // Create the user in the database
     result := h.DB.Create(&user)
     if result.Error != nil {
@@ -37,9 +48,50 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Send a success response
+    // Respond with success (don't send password back)
+    user.Password = ""
     w.WriteHeader(http.StatusCreated)
     json.NewEncoder(w).Encode(user)
+}
+
+func (h *UserHandler) LoginUser(w http.ResponseWriter, r *http.Request) {
+    var loginDetails struct {
+        Email    string
+        Password string
+    }
+
+    // Decode the JSON request body into the loginDetails struct
+    err := json.NewDecoder(r.Body).Decode(&loginDetails)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusBadRequest)
+        return
+    }
+
+    // Retrieve the user from the database
+    var user models.User
+    result := h.DB.Where("email = ?", loginDetails.Email).First(&user)
+    if result.Error != nil {
+        http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+        return
+    }
+
+    // Compare the hashed password with the password from the request
+    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginDetails.Password))
+    if err != nil {
+        http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+        return
+    }
+
+    // Generate JWT token (this function is not shown, you'll need to implement it)
+    token, err := utils.GenerateJWT(user, h.JWTSecret)
+    if err != nil {
+        http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+        return
+    }
+
+    // Respond with the JWT token
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
 
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request, id string) {
