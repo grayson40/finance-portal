@@ -4,29 +4,41 @@ import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArro
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft'
 import { navData } from '../lib/navData'
 import { useState } from 'react'
+import MenuIcon from '@mui/icons-material/Menu';
 
 export default function Sidenav () {
-  const [open, setopen] = useState(true)
+  const [open, setOpen] = useState(false);
+
   const toggleOpen = () => {
-    setopen(!open)
-  }
+    setOpen(!open);
+  };
+
+  const renderNavItems = () => {
+    return navData.map(item => {
+      return (
+        <NavLink key={item.id} className={styles.sideitem} to={item.link}>
+          {item.icon}
+          <span className={styles.linkText}>{item.text}</span>
+        </NavLink>
+      );
+    });
+  };
+
   return (
-    <div className={open ? styles.sidenav : styles.sidenavClosed}>
+    <div>
       <button className={styles.menuBtn} onClick={toggleOpen}>
-        {open ? (
-          <KeyboardDoubleArrowLeftIcon />
-        ) : (
-          <KeyboardDoubleArrowRightIcon />
-        )}
+        <MenuIcon />
       </button>
-      {navData.map(item => {
-        return (
-          <NavLink key={item.id} className={styles.sideitem} to={item.link}>
-            {item.icon}
-            <span className={styles.linkText}>{item.text}</span>
-          </NavLink>
-        )
-      })}
+      <div className={open ? styles.sidenav : styles.sidenavClosed}>
+        <button className={styles.menuBtn} onClick={toggleOpen}>
+          {open ? (
+            <KeyboardDoubleArrowLeftIcon />
+          ) : (
+            <KeyboardDoubleArrowRightIcon />
+          )}
+        </button>
+        {renderNavItems()}
+      </div>
     </div>
-  )
+  );
 }

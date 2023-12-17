@@ -53,7 +53,7 @@ export default function Expenses() {
     }
 
     fetchData();
-  },[])
+  }, [user.ID])
 
   const handleAddExpense = (e) => {
     e.preventDefault();
