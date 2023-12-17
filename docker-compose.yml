@@ -14,3 +14,7 @@ services:
     container_name: portal-server
     ports:
       - "5000:5000"
+    env_file: 
+    - ./server/.env
+    volumes:
+      - ./server:/app

@@ -5,8 +5,8 @@ FROM golang:1.18-buster
 WORKDIR /app
 
 # Copy go mod and sum files
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod /app/go.mod
+COPY go.sum /app/go.sum
 
 # Download all dependencies
 RUN go mod download
@@ -14,11 +14,8 @@ RUN go mod download
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Build the Go app
-RUN go build -o server .
-
 # Expose port 5000 to the outside world
 EXPOSE 5000
 
 # Command to run the executable
-CMD ["./server"]
+CMD ["go", "run", "."]
