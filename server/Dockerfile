@@ -1,24 +1,21 @@
-# Use an official Python runtime as a parent image
-FROM python:3.9-slim
+# Start from a Debian-based image with the Go language installed
+FROM golang:1.18-buster
 
-# Set the working directory to /app
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# Copy go mod and sum files
+COPY go.mod /app/go.mod
+COPY go.sum /app/go.sum
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Download all dependencies
+RUN go mod download
 
-# Copy the rest of the application's code
+# Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Make port 5000 available to the world outside this container
+# Expose port 5000 to the outside world
 EXPOSE 5000
 
-# Define environment variable
-ENV FLASK_APP=app.py
-ENV FLASK_RUN_HOST=0.0.0.0
-
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Command to run the executable
+CMD ["go", "run", "."]

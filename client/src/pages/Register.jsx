@@ -1,67 +1,58 @@
 import { useState } from 'react'
 import '../styles/forms.css'
-import { auth, db } from '../firebase'
 import { useNavigate, Link } from 'react-router-dom'
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification
-} from 'firebase/auth'
 import { useAuthValue } from '../context/AuthContext'
-import { addDoc, collection } from 'firebase/firestore'
 
 export default function Register () {
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const { login } = useAuthValue();
   const navigate = useNavigate()
-  const { setTimeActive } = useAuthValue()
 
   const validatePassword = () => {
     let isValid = true
     if (password !== '' && confirmPassword !== '') {
       if (password !== confirmPassword) {
         isValid = false
-        setError('Passwords does not match')
+        setError('Passwords do not match')
       }
     }
     return isValid
   }
 
   const register = (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
     if (validatePassword()) {
-      // Create a new user with email and password using firebase
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          sendEmailVerification(auth.currentUser)
-            .then(() => {
-              setTimeActive(true)
-              navigate('/verify-email')
-            })
-            .catch(err => alert(err.message))
-        })
-        .catch(err => setError(err.message))
-
-      // Post new user data to firestore
-      addUser(email)
-    }
-    setEmail('')
-    setPassword('')
-    setConfirmPassword('')
-  }
-
-  const addUser = async (email) => {
-    try {
-      const docRef = await addDoc(collection(db, 'users'), {
-        email: email
+      // Send a POST request to the backend register endpoint
+      fetch('api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
       })
-      console.log('User document written with ID: ', docRef.id)
-    } catch (err) {
-      console.error('Error adding user document: ', err)
+        .then((response) => response.json())
+        .then((data) => {
+          // Handle the response
+          if (data.error) {
+            setError(data.error);
+          } else {
+            // Store the JWT token and user info in context
+            login(data.token, data.user);
+            navigate('/');
+          }
+        })
+        .catch((err) => setError(err.message));
     }
-  }
+  };
 
   return (
     <div className='center'>
@@ -69,6 +60,14 @@ export default function Register () {
         <h1>Register</h1>
         {error && <div className='auth__error'>{error}</div>}
         <form onSubmit={register} name='registration_form'>
+          <input
+            type='name'
+            value={name}
+            placeholder='Enter your name'
+            required
+            onChange={e => setName(e.target.value)}
+          />
+
           <input
             type='email'
             value={email}

@@ -1,68 +1,67 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import '../styles/forms.css'
-import {
-  signInWithEmailAndPassword,
-  sendEmailVerification
-} from 'firebase/auth'
-import { auth } from '../firebase'
-import { useNavigate } from 'react-router-dom'
-import { useAuthValue } from '../context/AuthContext'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import "../styles/forms.css";
+import { useNavigate } from "react-router-dom";
+import { useAuthValue } from "../context/AuthContext";
 
-export default function Login () {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const { setTimeActive } = useAuthValue()
-  const navigate = useNavigate()
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const { login } = useAuthValue();
+  const navigate = useNavigate();
 
-  const login = (e) => {
-    e.preventDefault()
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        if (!auth.currentUser.emailVerified) {
-          sendEmailVerification(auth.currentUser)
-            .then(() => {
-              setTimeActive(true)
-              navigate('/verify-email')
-            })
-            .catch((err) => alert(err.message))
-        } else {
-          navigate('/')
-        }
+  const handleLogin = (e) => {
+    e.preventDefault();
+    fetch("api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Store the JWT token in local storage
+        login(data.token, data.user);
+        localStorage.setItem('token', data.token);
+        navigate("/");
       })
-      .catch((err) => setError(err.message))
-  }
+      .catch((err) => setError(err.message));
+  };
 
   return (
-    <div className='center'>
-      <div className='auth'>
+    <div className="center">
+      <div className="auth">
         <h1>Log in</h1>
-        {error && <div className='auth__error'>{error}</div>}
-        <form onSubmit={login} name='login_form'>
+        {error && <div className="auth__error">{error}</div>}
+        <form onSubmit={handleLogin} name="login_form">
           <input
-            type='email'
+            type="email"
             value={email}
             required
-            placeholder='Enter your email'
+            placeholder="Enter your email"
             onChange={(e) => setEmail(e.target.value)}
           />
 
           <input
-            type='password'
+            type="password"
             value={password}
             required
-            placeholder='Enter your password'
-            onChange={e => setPassword(e.target.value)}
+            placeholder="Enter your password"
+            onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button type='submit'>Login</button>
+          <button type="submit">Login</button>
         </form>
         <p>
           {`Don't have and account? `}
-          <Link to='/register'>Create one here</Link>
+          <Link to="/register">Create one here</Link>
         </p>
       </div>
     </div>
-  )
+  );
 }
