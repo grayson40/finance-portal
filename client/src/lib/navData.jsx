@@ -2,7 +2,7 @@ import HomeIcon from '@mui/icons-material/Home'
 import MoneyOffIcon from '@mui/icons-material/MoneyOff'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
-import AccountCircle from '@mui/icons-material/AccountCircle'
+import LogoutIcon from '@mui/icons-material/Logout';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 export const navData = [
@@ -38,7 +38,7 @@ export const navData = [
   },
   {
     id: 5,
-    icon: <AccountCircle />,
+    icon: <LogoutIcon />,
     text: 'Logout',
     link: '/login'
   },
