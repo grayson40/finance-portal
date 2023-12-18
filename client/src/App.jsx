@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import AppLayout from './components/layouts/AppLayout';
 import PrivateRoute from './components/PrivateRoute';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
               <Route path="/investments" element={<Investments />} />
               <Route path="/income" element={<Income />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
           </Route>
         </Routes>

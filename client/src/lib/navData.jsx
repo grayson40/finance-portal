@@ -34,7 +34,7 @@ export const navData = [
     id: 4,
     icon: <SettingsIcon />,
     text: 'Settings',
-    link: '/profile'
+    link: '/settings'
   },
   {
     id: 5,
