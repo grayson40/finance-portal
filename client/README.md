@@ -1,70 +1,47 @@
-# Getting Started with Create React App
+# Finance Portal Client with Docker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains a React app built with Vite, which can be built and run using Docker. Follow the steps below to build and run the client-side app.
 
-## Available Scripts
+## Prerequisites
 
-In the project directory, you can run:
+- Install [Docker](https://www.docker.com/products/docker-desktop) on your machine.
 
-### `npm start`
+## Building the Docker Image
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Open a terminal or command prompt, and navigate to the root directory of this project (the directory containing the `Dockerfile` and `package.json`).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+2. Build the Docker image by running the following command:
 
-### `npm test`
+    ```
+    docker build -t finance-client .
+    ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This command will build a Docker image using the instructions in the `Dockerfile`.
 
-### `npm run build`
+## Running the React App in a Docker Container
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. After building the Docker image, you can run a container using the following command:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+    ```
+    docker run --name portal-client -p 8080:80 finance-client
+    ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This command maps port 8080 on your machine to port 80 in the container.
 
-### `npm run eject`
+2. Your React app should now be running inside a Docker container and accessible at `http://localhost:3000`. Open a browser and navigate to `http://localhost:3000` to see your app.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Stopping the React App
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. To stop the running React app container, run the following command:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+    ```
+    docker stop portal-client
+    ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. (Optional) If you want to remove the stopped container, you can run:
 
-## Learn More
+    ```
+    docker rm portal-client
+    ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Now you have successfully built, run, and stopped a React app using Docker.
