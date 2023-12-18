@@ -11,26 +11,38 @@ export default function Login() {
   const { login } = useAuthValue();
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    fetch("api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Store the JWT token in local storage
-        login(data.token, data.user);
-        localStorage.setItem('token', data.token);
-        navigate("/");
-      })
-      .catch((err) => setError(err.message));
+    // Clear previous errors
+    setError("");
+
+    try {
+      const response = await fetch("api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        // If response is not ok, throw an error
+        const errorData = await response.json();
+        throw new Error(errorData.error || "An error occurred");
+      }
+
+      const data = await response.json();
+      // Store the JWT token in local storage
+      login(data.token, data.user);
+      localStorage.setItem("token", data.token);
+      navigate("/");
+    } catch (err) {
+      // Update the UI to show the error
+      setError(`Login failed: ${err.message}`);
+    }
   };
 
   return (
@@ -58,7 +70,7 @@ export default function Login() {
           <button type="submit">Login</button>
         </form>
         <p>
-          {`Don't have and account? `}
+          {`Don't have an account? `}
           <Link to="/register">Create one here</Link>
         </p>
       </div>

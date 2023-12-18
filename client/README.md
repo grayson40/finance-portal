@@ -28,7 +28,7 @@ This command will build a Docker image using the instructions in the `Dockerfile
 
 This command maps port 8080 on your machine to port 80 in the container.
 
-2. Your React app should now be running inside a Docker container and accessible at `http://localhost:8080`. Open a browser and navigate to `http://localhost:8080` to see your app.
+2. Your React app should now be running inside a Docker container and accessible at `http://localhost:3000`. Open a browser and navigate to `http://localhost:3000` to see your app.
 
 ## Stopping the React App
 

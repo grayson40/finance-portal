@@ -2,6 +2,8 @@ import HomeIcon from '@mui/icons-material/Home'
 import MoneyOffIcon from '@mui/icons-material/MoneyOff'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import LogoutIcon from '@mui/icons-material/Logout';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export const navData = [
   {
@@ -27,5 +29,17 @@ export const navData = [
     icon: <BarChartIcon />,
     text: 'Investments',
     link: '/investments'
-  }
+  },
+  {
+    id: 4,
+    icon: <SettingsIcon />,
+    text: 'Settings',
+    link: '/settings'
+  },
+  {
+    id: 5,
+    icon: <LogoutIcon />,
+    text: 'Logout',
+    link: '/login'
+  },
 ]

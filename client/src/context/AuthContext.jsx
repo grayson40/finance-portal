@@ -1,20 +1,43 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react';
 
+const AuthContext = React.createContext();
 
-const AuthContext = React.createContext()
+export function AuthProvider({ children }) {
+  // Initialize state directly from localStorage
+  const [token, setToken] = useState(() => localStorage.getItem('token'));
+  const [user, setUser] = useState(() => {
+    try {
+      // Safely parse the user from localStorage
+      const savedUser = localStorage.getItem('user');
+      return savedUser ? JSON.parse(savedUser) : null;
+    } catch (error) {
+      console.error('Failed to parse user from localStorage:', error);
+      return null;
+    }
+  });
 
-export function AuthProvider ({ children }) {
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(null);
+  // Effect to synchronize state with localStorage
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+    if (token) {
+      localStorage.setItem('token', token);
+    } else {
+      localStorage.removeItem('token');
+    }
+  }, [user, token]);
 
   const login = (newToken, userInfo) => {
-    localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(userInfo);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };
@@ -30,6 +53,6 @@ export function AuthProvider ({ children }) {
   );
 }
 
-export function useAuthValue () {
-  return useContext(AuthContext)
+export function useAuthValue() {
+  return useContext(AuthContext);
 }
