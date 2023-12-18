@@ -8,7 +8,7 @@ import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Layout from './components/Layout';
+import AppLayout from './components/layouts/AppLayout';
 import PrivateRoute from './components/PrivateRoute';
 
 function App() {
@@ -19,7 +19,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route element={<PrivateRoute />}>
-            <Route element={<Layout />}>
+            <Route element={<AppLayout />}>
               <Route path="/" element={<Home />} />
               <Route path="/expenses" element={<Expenses />} />
               <Route path="/investments" element={<Investments />} />
